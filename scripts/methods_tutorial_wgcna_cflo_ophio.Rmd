@@ -37,15 +37,15 @@ conflict_prefer("layout", "plotly")
 conflict_prefer("hclust", "flashClust")
 
 #' set path to your working directory
-dir.path = "/Users/biplabendudas/Documents/GitHub/deBekker_and_Das_2021"
+path_to_repo = "/Users/biplabendudas/Documents/GitHub/Das_and_deBekker_2021"
 
 #' load functions
 # customized theme for publication quality figures
-source(paste0(dir.path,"/functions/theme_publication.R"))
+source(paste0(path_to_repo,"/functions/theme_publication.R"))
 # function to perform enrichment analysis
-source(paste0(dir.path,"/functions/enrichment_analysis.R"))
+source(paste0(path_to_repo,"/functions/enrichment_analysis.R"))
 # function to plot z-scores (Cflo genes only)
-source(paste0(dir.path,"/functions/plot_zscores.R"))
+source(paste0(path_to_repo,"/functions/plot_zscores.R"))
 
 ```
 
@@ -71,7 +71,7 @@ For the purpose of this tutorial, we assume that you have organized the processe
 
 ```{r load_data}
 # loading database which contains data for Das and de Bekker 2021 (bioRxiv)
-db <- dbConnect(RSQLite::SQLite(), paste0(dir.path,"/data/databases/TC5_data.db"))
+db <- dbConnect(RSQLite::SQLite(), paste0(path_to_repo,"/data/databases/TC5_data.db"))
 
 # extract the (gene-expr X time-point) data
 dat <-
@@ -148,8 +148,8 @@ ggplot(x, aes(x=value, color=sample)) + geom_density() + theme_Publication()
 ## Calculate Kendall's tau-b correlation for each gene-gene pair
 #
 # sim_matrix <- cor((datExpr), method = "kendall") # this step takes time
-# save(sim_matrix, file = paste0(dir.path, "/results/temp_files/sim_matrix_for_nur_TC5.RData")) # might be useful to save the sim_matrix and
-load(paste0(dir.path, "/results/temp_files/sim_matrix_for_nur_TC5.RData")) # load it up
+# save(sim_matrix, file = paste0(path_to_repo, "/results/temp_files/sim_matrix_for_nur_TC5.RData")) # might be useful to save the sim_matrix and
+load(paste0(path_to_repo, "/results/temp_files/sim_matrix_for_nur_TC5.RData")) # load it up
 
 ## Let's display a chunk of the matrix (code from Hughitt 2016; github)
 heatmap_indices <- sample(nrow(sim_matrix), 500)
@@ -205,8 +205,8 @@ soft.power = 9
 #                                        power=soft.power,
 #                                        type='signed'
 #                                         )
-# save(adj_matrix, file = paste0(dir.path, "/results/temp_files/adj_matrix_for_nur_TC5.RData")) # might be useful to save the sim_matrix and
-load(paste0(dir.path, "/results/temp_files/adj_matrix_for_nur_TC5.RData")) # load it up
+# save(adj_matrix, file = paste0(path_to_repo, "/results/temp_files/adj_matrix_for_nur_TC5.RData")) # might be useful to save the sim_matrix and
+load(paste0(path_to_repo, "/results/temp_files/adj_matrix_for_nur_TC5.RData")) # load it up
 
 
 # Convert adj_matrix to matrix
@@ -241,8 +241,8 @@ gc()
 # Turn adjacency into topological overlap
 # TOM = TOMsimilarity(adj_matrix);
 # dissTOM = 1-TOM
-# save(dissTOM, file = paste0(dir.path, "/results/temp_files/dissTOM_for_nur_TC5.RData")) # might be useful to save the sim_matrix and
-load(paste0(dir.path, "/results/temp_files/dissTOM_for_nur_TC5.RData")) # load it up
+# save(dissTOM, file = paste0(path_to_repo, "/results/temp_files/dissTOM_for_nur_TC5.RData")) # might be useful to save the sim_matrix and
+load(paste0(path_to_repo, "/results/temp_files/dissTOM_for_nur_TC5.RData")) # load it up
 
 # Call the hierarchical clustering function
 geneTree = hclust(as.dist(dissTOM), method = "average")
@@ -481,7 +481,7 @@ sapply(list2, length)
 ## make a GOM object
 gom.1v2 <- newGOM(list1, list2,
        genome.size = nGenes)
-png(paste0(dir.path, "/results/figures/gom_1v2.png"), 
+png(paste0(path_to_repo, "/results/figures/gom_1v2.png"), 
     width = 20, height = 18, units = "cm", res = 300)
 drawHeatmap(gom.1v2,
               adj.p=T,
@@ -539,7 +539,7 @@ names(list3) <- c("for-UP", "for-DOWN",
 gom.1v3 <- newGOM(list1, list3,
        genome.size = nGenes)
 ## visualize the overlaps
-png(paste0(dir.path, "/results/figures/gom_1v3.png"), 
+png(paste0(path_to_repo, "/results/figures/gom_1v3.png"), 
     width = 20, height = 18, units = "cm", res = 300)
 drawHeatmap(gom.1v3,
               adj.p=T,
@@ -560,10 +560,18 @@ The figure above clearly indicates that the gene-clusters that underlie behavior
 
 **In other words, to induce the characteristic manipulated biting behavior, the manipulating fungal parasite seems to be targeting the same genes and processes that otherwise allow ants to display behavioral plasticity.**
 
+```{r plot_annotated_network, echo = FALSE, fig.align='center', fig.cap='Annotated circadian GCN', out.width="85%"}
+
+knitr::include_graphics("./../results/illustrations/annotated_network_summary.png")
+```
+
+
 
 ## Step 4: Explore your clusters-of-interest
 
-### 4.1 What are these overlapping genes?
+### 4.1 Cluster: DARKTURQUOISE
+
+#### 4.1.1 What are these overlapping genes?
 
 - Let's focus on the cluster darkturquoise that contains most Cflo genes that:
   - are sig. higher expressed in foragers (v. nurses) and 
@@ -630,7 +638,8 @@ DT::datatable(overlapping.genes.2.annot, options = list(
 
 ```
 
-### 4.2 What's special about my cluster?
+
+#### 4.1.2 What's special about my cluster?
 
 Now that we know that the module **darkturquoise** contains most of our genes of interest, we can infer its function (enriched GOs and PFAMs) and also identify the genes that are important for the cluster to be functional (i.e., hub genes).
 
@@ -638,7 +647,7 @@ This is the primary advantage of systems-level analysis:
 - Use different sources of evidence to identify the clusters in the network that are of interest,
 - Analyze the cluster-of-interest
 
-#### 4.2.1 Enriched GO terms
+#### 4.1.3 Enriched GO terms
 
 First up, let's see which processes are overrepresented in the cluster.
 
@@ -649,32 +658,114 @@ bg.genes <- dat %>% pull(gene_name)
 
 # Run the enrichment function (note, GO HERE TO READ MORE ABOUT THIS FUNCTION)
 go_enrichment(geneset = module_genes[[coi.1]],
-              function.dir = dir.path,
+              function.dir = path_to_repo,
                 org = "cflo", 
                 bg = bg.genes) %>% 
   
   # visualize the results
-  go_enrichment_plot(function.dir = dir.path)
+  go_enrichment_plot(function.dir = path_to_repo)
 
 ```
 
-#### 4.2.2 Daily rhythms?
+#### 4.1.4 Daily rhythms?
 
 Second, let's plot the daily expression patterns of all genes in the cluster, for nurses and foragers.
 
 ```{r explore_darkturquoise_v4}
 
 # Obtain the stacked z-plots for nurses (blue) and foragers (red)
-zplots <- 
+zplots.darkturquoise <- 
   module_genes[[coi.1]] %>% 
   stacked.zplot()
 
 # Plot them side by side
-zplots[[1]] / zplots[[2]]
+zplots.darkturquoise[[1]] / zplots.darkturquoise[[2]]
 
 ```
 
 LEGEND: **RED** = Forager brains, **BLUE** = Nurse brains
 
+#### 4.1.5 HUB genes?
+ 
+Need to:
+- identify the hub genes in the darkturquoise cluster
+- other genes of interest based on their location in the network?
 
-### 4.3 
+
+### 4.2 Cluster: DARKRED
+
+#### 4.2.1 Overlapping genes
+
+```{r explore_darkred_v1, echo=F}
+# specify our cluster of interest (coi)
+coi.2 <- "darkred"
+
+# specify our genes of interest (goi)
+goi.3 <- ophio.down
+
+# Identify overlapping genes
+overlapping.genes.3 <- intersect(module_genes[[coi.2]], goi.3)
+
+# define the second gene-set of interst
+goi.4 <- for.down
+
+# Identify overlapping.genes
+overlapping.genes.4 <- intersect(overlapping.genes.3, goi.4) 
+
+# what are these genes?
+overlapping.genes.4.annot <- 
+  db %>% 
+  tbl(., "annot_fpkm") %>% 
+  filter(gene_name %in% overlapping.genes.4) %>% 
+  select(gene_name, 
+         blast_annot=old_annotation, 
+         GOs, pfams, signalP, TMHMM) %>% 
+  collect()
+
+# Visualize the results
+DT::datatable(overlapping.genes.4.annot, options = list(
+  pageLength = 5,
+  lengthMenu = c(5, 10, 15, 20)
+))
+
+```
+
+#### 4.2.2 Enriched GO terms
+
+```{r explore_darkred_v2, echo=F}
+
+# which genes?
+module_genes[[coi.2]] %>% 
+  
+  # run enrichment
+  go_enrichment(.,
+              function.dir = path_to_repo,
+                org = "cflo", 
+                bg = bg.genes) %>% 
+  
+  # visualize the results
+  go_enrichment_plot(function.dir = path_to_repo)
+
+```
+
+#### 4.2.3 Daily rhythms?
+
+```{r explore_darkred_v3, echo=F}
+
+# Obtain the stacked z-plots for 
+# nurses (blue) and foragers (red)
+zplots.darkred <- 
+  module_genes[[coi.2]] %>% 
+  stacked.zplot()
+
+# Plot them side by side
+zplots.darkred[[1]] / zplots.darkred[[2]]
+
+```
+
+LEGEND: **RED** = Forager brains, **BLUE** = Nurse brains
+
+#### 4.3.4 HUB genes?
+
+coming soon...
+

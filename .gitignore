@@ -38,3 +38,4 @@ data/databases/TC5_data.db
 results/temp_files/adj_matrix_for_nur_TC5.RData
 results/temp_files/dissTOM_for_nur_TC5.RData
 results/temp_files/sim_matrix_for_nur_TC5.RData
+.Rproj.user

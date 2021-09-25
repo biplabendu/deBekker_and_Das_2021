@@ -38,7 +38,7 @@ For the purpose of this tutorial, we assume that you have organized the processe
 
 ```r
 # loading database which contains data for Das and de Bekker 2021 (bioRxiv)
-db <- dbConnect(RSQLite::SQLite(), paste0(dir.path,"/data/databases/TC5_data.db"))
+db <- dbConnect(RSQLite::SQLite(), paste0(path_to_repo,"/data/databases/TC5_data.db"))
 
 # extract the (gene-expr X time-point) data
 dat <-
@@ -124,8 +124,8 @@ ggplot(x, aes(x=value, color=sample)) + geom_density() + theme_Publication()
 ## Calculate Kendall's tau-b correlation for each gene-gene pair
 #
 # sim_matrix <- cor((datExpr), method = "kendall") # this step takes time
-# save(sim_matrix, file = paste0(dir.path, "/results/temp_files/sim_matrix_for_nur_TC5.RData")) # might be useful to save the sim_matrix and
-load(paste0(dir.path, "/results/temp_files/sim_matrix_for_nur_TC5.RData")) # load it up
+# save(sim_matrix, file = paste0(path_to_repo, "/results/temp_files/sim_matrix_for_nur_TC5.RData")) # might be useful to save the sim_matrix and
+load(paste0(path_to_repo, "/results/temp_files/sim_matrix_for_nur_TC5.RData")) # load it up
 
 ## Let's display a chunk of the matrix (code from Hughitt 2016; github)
 heatmap_indices <- sample(nrow(sim_matrix), 500)
@@ -216,8 +216,8 @@ soft.power = 9
 #                                        power=soft.power,
 #                                        type='signed'
 #                                         )
-# save(adj_matrix, file = paste0(dir.path, "/results/temp_files/adj_matrix_for_nur_TC5.RData")) # might be useful to save the sim_matrix and
-load(paste0(dir.path, "/results/temp_files/adj_matrix_for_nur_TC5.RData")) # load it up
+# save(adj_matrix, file = paste0(path_to_repo, "/results/temp_files/adj_matrix_for_nur_TC5.RData")) # might be useful to save the sim_matrix and
+load(paste0(path_to_repo, "/results/temp_files/adj_matrix_for_nur_TC5.RData")) # load it up
 
 
 # Convert adj_matrix to matrix
@@ -247,8 +247,8 @@ gc()
 
 ```
 ##            used  (Mb) gc trigger   (Mb) limit (Mb)  max used   (Mb)
-## Ncells  3914207 209.1    7460897  398.5         NA   7460897  398.5
-## Vcells 92806779 708.1  300702737 2294.2      16384 451627338 3445.7
+## Ncells  3914353 209.1    7461238  398.5         NA   7461238  398.5
+## Vcells 92807514 708.1  300703527 2294.2      16384 451628072 3445.7
 ```
 
 ***
@@ -262,8 +262,8 @@ gc()
 # Turn adjacency into topological overlap
 # TOM = TOMsimilarity(adj_matrix);
 # dissTOM = 1-TOM
-# save(dissTOM, file = paste0(dir.path, "/results/temp_files/dissTOM_for_nur_TC5.RData")) # might be useful to save the sim_matrix and
-load(paste0(dir.path, "/results/temp_files/dissTOM_for_nur_TC5.RData")) # load it up
+# save(dissTOM, file = paste0(path_to_repo, "/results/temp_files/dissTOM_for_nur_TC5.RData")) # might be useful to save the sim_matrix and
+load(paste0(path_to_repo, "/results/temp_files/dissTOM_for_nur_TC5.RData")) # load it up
 
 # Call the hierarchical clustering function
 geneTree = hclust(as.dist(dissTOM), method = "average")
@@ -598,7 +598,7 @@ sapply(list2, length)
 ## make a GOM object
 gom.1v2 <- newGOM(list1, list2,
        genome.size = nGenes)
-png(paste0(dir.path, "/results/figures/gom_1v2.png"), 
+png(paste0(path_to_repo, "/results/figures/gom_1v2.png"), 
     width = 20, height = 18, units = "cm", res = 300)
 drawHeatmap(gom.1v2,
               adj.p=T,
@@ -662,7 +662,7 @@ names(list3) <- c("for-UP", "for-DOWN",
 gom.1v3 <- newGOM(list1, list3,
        genome.size = nGenes)
 ## visualize the overlaps
-png(paste0(dir.path, "/results/figures/gom_1v3.png"), 
+png(paste0(path_to_repo, "/results/figures/gom_1v3.png"), 
     width = 20, height = 18, units = "cm", res = 300)
 drawHeatmap(gom.1v3,
               adj.p=T,
@@ -688,10 +688,18 @@ The figure above clearly indicates that the gene-clusters that underlie behavior
 
 **In other words, to induce the characteristic manipulated biting behavior, the manipulating fungal parasite seems to be targeting the same genes and processes that otherwise allow ants to display behavioral plasticity.**
 
+<div class="figure" style="text-align: center">
+<img src="./../results/illustrations/annotated_network_summary.png" alt="Annotated circadian GCN" width="85%" />
+<p class="caption">Annotated circadian GCN</p>
+</div>
+
+
 
 ## Step 4: Explore your clusters-of-interest
 
-### 4.1 What are these overlapping genes?
+### 4.1 Cluster: DARKTURQUOISE
+
+#### 4.1.1 What are these overlapping genes?
 
 - Let's focus on the cluster darkturquoise that contains most Cflo genes that:
   - are sig. higher expressed in foragers (v. nurses) and 
@@ -780,7 +788,8 @@ DT::datatable(overlapping.genes.2.annot, options = list(
 <!--html_preserve--><div id="htmlwidget-89f28528f27cc947ce55" style="width:100%;height:auto;" class="datatables html-widget"></div>
 <script type="application/json" data-for="htmlwidget-89f28528f27cc947ce55">{"x":{"filter":"none","data":[["1","2","3","4","5","6","7","8","9","10"],["LOC105249672","LOC105250427","LOC105250918","LOC105251392","LOC105251468","LOC105253608","LOC105254189","LOC105255413","LOC105256264","LOC105259120"],["cyclin-dependent kinase 4","uncharacterized protein LOC105250427","uncharacterized protein LOC105250918","glutamate--cysteine ligase regulatory subunit","uncharacterized protein LOC105251468","ETS-related transcription factor Elf-5","uncharacterized protein LOC105254189 isoform X2","matrix metalloproteinase-14 isoform X3","histone H2A","uncharacterized protein LOC105259120"],["GO:0004672|protein kinase activity; GO:0005524|ATP binding; GO:0006468|protein phosphorylation",null,null,"GO:0006750|glutathione biosynthetic process; GO:0035226|glutamate-cysteine ligase catalytic subunit binding","GO:0003700|DNA-binding transcription factor activity; GO:0006355|regulation of transcription, DNA-templated","GO:0003700|DNA-binding transcription factor activity; GO:0005634|nucleus; GO:0006355|regulation of transcription, DNA-templated; GO:0043565|sequence-specific DNA binding",null,"GO:0004222|metalloendopeptidase activity; GO:0006508|proteolysis; GO:0008270|zinc ion binding; GO:0031012|extracellular matrix","GO:0000786|nucleosome; GO:0003677|DNA binding",null],["PF00069|Protein kinase domain",null,null,"PF00248|Aldo/keto reductase family","PF07716|Basic region leucine zipper","PF02198|Sterile alpha motif (SAM)/Pointed domain; PF00178|Ets-domain","PF13639|Ring finger domain","PF00413|Matrixin; PF00045|Hemopexin; PF00045|Hemopexin; PF00045|Hemopexin; PF00045|Hemopexin; PF01471|Putative peptidoglycan binding domain","PF16211|C-terminus of histone H2A; PF00125|Core histone H2A/H2B/H3/H4",null],[0,0,0,0,0,0,0,0,0,3],[0,0,0,0,0,0,2,0,0,0]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>gene_name<\/th>\n      <th>blast_annot<\/th>\n      <th>GOs<\/th>\n      <th>pfams<\/th>\n      <th>signalP<\/th>\n      <th>TMHMM<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"lengthMenu":[5,10,15,20],"columnDefs":[{"className":"dt-right","targets":[5,6]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script><!--/html_preserve-->
 
-### 4.2 What's special about my cluster?
+
+#### 4.1.2 What's special about my cluster?
 
 Now that we know that the module **darkturquoise** contains most of our genes of interest, we can infer its function (enriched GOs and PFAMs) and also identify the genes that are important for the cluster to be functional (i.e., hub genes).
 
@@ -788,7 +797,7 @@ This is the primary advantage of systems-level analysis:
 - Use different sources of evidence to identify the clusters in the network that are of interest,
 - Analyze the cluster-of-interest
 
-#### 4.2.1 Enriched GO terms
+#### 4.1.3 Enriched GO terms
 
 First up, let's see which processes are overrepresented in the cluster.
 
@@ -799,12 +808,12 @@ bg.genes <- dat %>% pull(gene_name)
 
 # Run the enrichment function (note, GO HERE TO READ MORE ABOUT THIS FUNCTION)
 go_enrichment(geneset = module_genes[[coi.1]],
-              function.dir = dir.path,
+              function.dir = path_to_repo,
                 org = "cflo", 
                 bg = bg.genes) %>% 
   
   # visualize the results
-  go_enrichment_plot(function.dir = dir.path)
+  go_enrichment_plot(function.dir = path_to_repo)
 ```
 
 ```
@@ -821,24 +830,63 @@ go_enrichment(geneset = module_genes[[coi.1]],
 
 ![](methods_tutorial_wgcna_cflo_ophio_files/figure-html/explore_darkturquoise_v3-1.png)<!-- -->
 
-#### 4.2.2 Daily rhythms?
+#### 4.1.4 Daily rhythms?
 
 Second, let's plot the daily expression patterns of all genes in the cluster, for nurses and foragers.
 
 
 ```r
 # Obtain the stacked z-plots for nurses (blue) and foragers (red)
-zplots <- 
+zplots.darkturquoise <- 
   module_genes[[coi.1]] %>% 
   stacked.zplot()
 
 # Plot them side by side
-zplots[[1]] / zplots[[2]]
+zplots.darkturquoise[[1]] / zplots.darkturquoise[[2]]
 ```
 
 ![](methods_tutorial_wgcna_cflo_ophio_files/figure-html/explore_darkturquoise_v4-1.png)<!-- -->
 
 LEGEND: **RED** = Forager brains, **BLUE** = Nurse brains
 
+#### 4.1.5 HUB genes?
+ 
+Need to:
+- identify the hub genes in the darkturquoise cluster
+- other genes of interest based on their location in the network?
 
-### 4.3 
+
+### 4.2 Cluster: DARKRED
+
+#### 4.2.1 Overlapping genes
+
+<!--html_preserve--><div id="htmlwidget-0cd7cf90bab4d460b899" style="width:100%;height:auto;" class="datatables html-widget"></div>
+<script type="application/json" data-for="htmlwidget-0cd7cf90bab4d460b899">{"x":{"filter":"none","data":[["1","2","3","4","5","6","7","8","9","10"],["LOC105248438","LOC105249045","LOC105251298","LOC105252207","LOC105252893","LOC105253145","LOC105254428","LOC105254766","LOC105255968","LOC105257232"],["venom carboxylesterase-6","protein CREG1","lysosomal aspartic protease isoform X3","regucalcin isoform X1","D-3-phosphoglycerate dehydrogenase","uncharacterized protein LOC105253145","LOW QUALITY PROTEIN: alanine--glyoxylate aminotransferase 2-like","centromere-associated protein E isoform X2","glutamine synthetase 2 cytoplasmic isoform X1","venom serine carboxypeptidase"],[null,null,"GO:0004190|aspartic-type endopeptidase activity; GO:0016540|protein autoprocessing",null,"GO:0016616|oxidoreductase activity, acting on the CH-OH group of donors, NAD or NADP as acceptor; GO:0051287|NAD binding; GO:0055114|oxidation-reduction process",null,"GO:0008483|transaminase activity; GO:0030170|pyridoxal phosphate binding",null,"GO:0004356|glutamate-ammonia ligase activity; GO:0006542|glutamine biosynthetic process","GO:0004185|serine-type carboxypeptidase activity; GO:0006508|proteolysis"],["PF00135|Carboxylesterase family","PF13883|Pyridoxamine 5'-phosphate oxidase","PF00026|Eukaryotic aspartyl protease","PF08450|SMP-30/Gluconolactonase/LRE-like region","PF02826|D-isomer specific 2-hydroxyacid dehydrogenase, NAD binding domain; PF00389|D-isomer specific 2-hydroxyacid dehydrogenase, catalytic domain","PF00135|Carboxylesterase family; PF00135|Carboxylesterase family","PF00202|Aminotransferase class-III",null,"PF00120|Glutamine synthetase, catalytic domain; PF03951|Glutamine synthetase, beta-Grasp domain","PF00450|Serine carboxypeptidase"],[0,1,1,1,0,2,0,1,0,1],[1,0,0,0,0,0,0,0,0,1]],"container":"<table class=\"display\">\n  <thead>\n    <tr>\n      <th> <\/th>\n      <th>gene_name<\/th>\n      <th>blast_annot<\/th>\n      <th>GOs<\/th>\n      <th>pfams<\/th>\n      <th>signalP<\/th>\n      <th>TMHMM<\/th>\n    <\/tr>\n  <\/thead>\n<\/table>","options":{"pageLength":5,"lengthMenu":[5,10,15,20],"columnDefs":[{"className":"dt-right","targets":[5,6]},{"orderable":false,"targets":0}],"order":[],"autoWidth":false,"orderClasses":false}},"evals":[],"jsHooks":[]}</script><!--/html_preserve-->
+
+#### 4.2.2 Enriched GO terms
+
+
+```
+## [1] "Loading annotation file for Camponotus floridanus"
+## [1] "Done."
+## [1] "Number of genes in background geneset: 9139"
+## [1] "Number of genes in the test set: 179"
+## [1] "--------------------------------"
+## [1] "Number of GO terms in background geneset: 1968"
+## [1] "Number of GO terms (at least 5genes) in background geneset: 373"
+## [1] "Number of GO terms (at least 5genes) in test set: 16"
+## [1] "Testing for enrichment..."
+```
+
+![](methods_tutorial_wgcna_cflo_ophio_files/figure-html/explore_darkred_v2-1.png)<!-- -->
+
+#### 4.2.3 Daily rhythms?
+
+![](methods_tutorial_wgcna_cflo_ophio_files/figure-html/explore_darkred_v3-1.png)<!-- -->
+
+LEGEND: **RED** = Forager brains, **BLUE** = Nurse brains
+
+#### 4.3.4 HUB genes?
+
+coming soon...
+
