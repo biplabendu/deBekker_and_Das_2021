@@ -5,8 +5,11 @@ date: '`r format(Sys.time(), "%d %B, %Y")`'
 output:
   html_document:
     toc: true
+    toc_depth: 3
+    toc_float: true
     theme: united
-    keep_md: yes
+    keep_md: no
+    code_folding: hide
 editor_options: 
   chunk_output_type: console
 ---
@@ -496,7 +499,7 @@ dev.off()
 
 
 ```{r plot_gom_1v2, echo = FALSE, fig.align='center', fig.cap='Gene-clusters with 24h-rhythmic genes'}
-knitr::include_graphics("./../results/figures/gom_1v2.png")
+knitr::include_graphics(paste0(path_to_repo, "/results/figures/gom_1v2.png"))
 ```
 
 The above plot shows the gene-clusters that contain most of our 24h-rhythmic genes of interest.
@@ -663,7 +666,7 @@ go_enrichment(geneset = module_genes[[coi.1]],
                 bg = bg.genes) %>% 
   
   # visualize the results
-  go_enrichment_plot(function.dir = path_to_repo)
+  go_enrichment_plot(function.dir = path_to_repo, clean = "no")
 
 ```
 
@@ -744,7 +747,7 @@ module_genes[[coi.2]] %>%
                 bg = bg.genes) %>% 
   
   # visualize the results
-  go_enrichment_plot(function.dir = path_to_repo)
+  go_enrichment_plot(function.dir = path_to_repo, clean = "no")
 
 ```
 
@@ -769,3 +772,104 @@ LEGEND: **RED** = Forager brains, **BLUE** = Nurse brains
 
 coming soon...
 
+
+### 4.3 Cluster: SADDLEBROWN
+
+> Connected to the forager-cluster (darkturquoise)
+
+#### 4.3.1 Explore cluster
+
+```{r explore_saddlebrown_v1, echo=F}
+# specify our cluster of interest (coi)
+coi.3 <- "saddlebrown"
+
+writeLines(paste0("How many genes are there in the ", coi.3, " cluster?"))
+module_genes[[coi.3]] %>% length() # n = 95 genes
+
+```
+
+#### 4.3.2 Enriched GO terms
+
+```{r explore_saddlebrown_v2, echo=F}
+
+# which genes?
+module_genes[[coi.3]] %>% 
+  
+  # run enrichment
+  go_enrichment(.,
+              function.dir = path_to_repo,
+                org = "cflo", 
+                bg = bg.genes) %>% 
+  
+  # visualize the results
+  go_enrichment_plot(function.dir = path_to_repo, clean = "no")
+
+```
+
+
+### 4.4 Cluster: GREY60
+
+> Connected to the nurse-cluster (darkred)
+
+#### 4.4.1 Explore cluster
+
+```{r explore_grey60_v1, echo=F}
+# specify our cluster of interest (coi)
+coi.4 <- "grey60"
+
+writeLines(paste0("How many genes are there in the ", coi.4, " cluster?"))
+module_genes[[coi.4]] %>% length() # n = 95 genes
+
+```
+
+#### 4.4.2 Enriched GO terms
+
+```{r explore_grey60_v2, echo=F}
+
+# which genes?
+module_genes[[coi.4]] %>% 
+  
+  # run enrichment
+  go_enrichment(.,
+              function.dir = path_to_repo,
+                org = "cflo", 
+                bg = bg.genes) %>% 
+  
+  # visualize the results
+  go_enrichment_plot(function.dir = path_to_repo, clean = "no")
+
+```
+
+
+### 4.5 Cluster: DARKGREEN
+
+> Indirectly connected to forager- and nurse-cluster (and highly correlated to saddlebrown)
+
+#### 4.5.1 Explore cluster
+
+```{r explore_darkgreen_v1, echo=F}
+# specify our cluster of interest (coi)
+coi.5 <- "darkgreen"
+
+writeLines(paste0("How many genes are there in the ", coi.5, " cluster?"))
+module_genes[[coi.5]] %>% length() # n = 95 genes
+
+```
+
+#### 4.4.2 Enriched GO terms
+
+```{r explore_darkgreen_v2, echo=F}
+
+# which genes?
+module_genes[[coi.5]] %>% 
+  
+  # run enrichment
+  go_enrichment(.,
+              function.dir = path_to_repo,
+                org = "cflo", 
+                bg = bg.genes) %>% 
+  
+  # visualize the results
+  go_enrichment_plot(function.dir = path_to_repo, clean = "no")
+
+```

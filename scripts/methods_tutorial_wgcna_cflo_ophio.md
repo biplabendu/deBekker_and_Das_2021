@@ -1,10 +1,11 @@
 ---
 title: "Host-parasite-clocks"
 author: Biplabendu Das
-date: '24 September, 2021'
+date: '08 October, 2021'
 output:
   html_document:
     toc: true
+    toc_float: true
     theme: united
     keep_md: yes
 editor_options: 
@@ -247,8 +248,8 @@ gc()
 
 ```
 ##            used  (Mb) gc trigger   (Mb) limit (Mb)  max used   (Mb)
-## Ncells  3914353 209.1    7461238  398.5         NA   7461238  398.5
-## Vcells 92807514 708.1  300703527 2294.2      16384 451628072 3445.7
+## Ncells  3914683 209.1    7459594  398.4         NA   7459594  398.4
+## Vcells 92808825 708.1  300704976 2294.2      16384 451629383 3445.7
 ```
 
 ***
@@ -617,7 +618,7 @@ dev.off()
 
 
 <div class="figure" style="text-align: center">
-<img src="./../results/figures/gom_1v2.png" alt="Gene-clusters with 24h-rhythmic genes" width="2362" />
+<img src="/Users/biplabendudas/Documents/GitHub/Das_and_deBekker_2021/results/figures/gom_1v2.png" alt="Gene-clusters with 24h-rhythmic genes" width="2362" />
 <p class="caption">Gene-clusters with 24h-rhythmic genes</p>
 </div>
 
@@ -813,7 +814,7 @@ go_enrichment(geneset = module_genes[[coi.1]],
                 bg = bg.genes) %>% 
   
   # visualize the results
-  go_enrichment_plot(function.dir = path_to_repo)
+  go_enrichment_plot(function.dir = path_to_repo, clean = "no")
 ```
 
 ```
@@ -890,3 +891,101 @@ LEGEND: **RED** = Forager brains, **BLUE** = Nurse brains
 
 coming soon...
 
+
+### 4.3 Cluster: SADDLEBROWN
+
+> Connected to the forager-cluster (darkturquoise)
+
+#### 4.3.1 Explore cluster
+
+
+```
+## How many genes are there in the saddlebrown cluster?
+```
+
+```
+## [1] 95
+```
+
+#### 4.3.2 Enriched GO terms
+
+
+```
+## [1] "Loading annotation file for Camponotus floridanus"
+## [1] "Done."
+## [1] "Number of genes in background geneset: 9139"
+## [1] "Number of genes in the test set: 95"
+## [1] "--------------------------------"
+## [1] "Number of GO terms in background geneset: 1968"
+## [1] "Number of GO terms (at least 5genes) in background geneset: 373"
+## [1] "Number of GO terms (at least 5genes) in test set: 5"
+## [1] "Testing for enrichment..."
+```
+
+![](methods_tutorial_wgcna_cflo_ophio_files/figure-html/explore_saddlebrown_v2-1.png)<!-- -->
+
+
+### 4.4 Cluster: GREY60
+
+> Connected to the nurse-cluster (darkred)
+
+#### 4.4.1 Explore cluster
+
+
+```
+## How many genes are there in the grey60 cluster?
+```
+
+```
+## [1] 2269
+```
+
+#### 4.4.2 Enriched GO terms
+
+
+```
+## [1] "Loading annotation file for Camponotus floridanus"
+## [1] "Done."
+## [1] "Number of genes in background geneset: 9139"
+## [1] "Number of genes in the test set: 2269"
+## [1] "--------------------------------"
+## [1] "Number of GO terms in background geneset: 1968"
+## [1] "Number of GO terms (at least 5genes) in background geneset: 373"
+## [1] "Number of GO terms (at least 5genes) in test set: 92"
+## [1] "Testing for enrichment..."
+```
+
+![](methods_tutorial_wgcna_cflo_ophio_files/figure-html/explore_grey60_v2-1.png)<!-- -->
+
+
+### 4.5 Cluster: DARKGREEN
+
+> Indirectly connected to forager- and nurse-cluster (and highly correlated to saddlebrown)
+
+#### 4.5.1 Explore cluster
+
+
+```
+## How many genes are there in the darkgreen cluster?
+```
+
+```
+## [1] 1533
+```
+
+#### 4.4.2 Enriched GO terms
+
+
+```
+## [1] "Loading annotation file for Camponotus floridanus"
+## [1] "Done."
+## [1] "Number of genes in background geneset: 9139"
+## [1] "Number of genes in the test set: 1533"
+## [1] "--------------------------------"
+## [1] "Number of GO terms in background geneset: 1968"
+## [1] "Number of GO terms (at least 5genes) in background geneset: 373"
+## [1] "Number of GO terms (at least 5genes) in test set: 72"
+## [1] "Testing for enrichment..."
+```
+
+![](methods_tutorial_wgcna_cflo_ophio_files/figure-html/explore_darkgreen_v2-1.png)<!-- -->
