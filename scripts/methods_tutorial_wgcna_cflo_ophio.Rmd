@@ -341,10 +341,16 @@ adj_matrix_ME <- adjacency.fromSimilarity(sim_matrix_ME,
 )
 
 # coerce into a matrix
-gene_ids <- rownames(adj_matrix_ME)
+
+## GET THE NAMES OF THE MODULES
+# module_ids <- rownames(adj_matrix_ME)
+## CHANGE THE NAMES OF THE MODULES
+module_ids <- data.frame(old_labels = rownames(adj_matrix_ME),
+                       new_labels = paste0("module-", 1:nrow(adj_matrix_ME)))
+
 adj_matrix_ME <- matrix(adj_matrix_ME, nrow=nrow(adj_matrix_ME))
-rownames(adj_matrix_ME) <- gene_ids
-colnames(adj_matrix_ME) <- gene_ids
+rownames(adj_matrix_ME) <- module_ids$new_labels
+colnames(adj_matrix_ME) <- module_ids$new_labels
 
 gplots::heatmap.2(t(adj_matrix_ME),
                   col=inferno(100),
@@ -403,13 +409,13 @@ E(network)$edge.color <- "gray80"
 
 ## Circular layout
 plot(network,
-     layout=layout.kamada.kawai
+     layout=layout.kamada.kawai,
        # layout=layout.fruchterman.reingold
        # layout=layout.graphopt
        # layout=layout_in_circle,
      # vertex.label=NA
      # vertex.size=hub.score(network)$vector*30
-     # vertex.shape="none"
+     vertex.shape="none"
 )
 
 ```
@@ -463,9 +469,21 @@ for (i in 1:length(module_color)) {
   names(module_genes)[[i]] <- module_color[[i]]
 }
 # check the result | works
-names(module_genes)
+names(module_genes) <- module_ids$new_labels
 # module_genes['salmon']
 
+```
+
+
+```{r}
+
+# Let's change the name of the modules for easy reading
+# names(module_genes) <- paste0("module-", 1:length(module_genes))
+
+```
+
+
+```{r}
 
 ## MAKE YOUR LIST OF GENES OF INTEREST ##
 
@@ -474,8 +492,8 @@ list1 <- module_genes
 sapply(list1, length)
 
 ## LIST TWO - rhythmic genes
-list2 <- list(for.rhy, nur.rhy, rhy.genes, intersect(for.rhy, nur.rhy), for24.nur8)
-names(list2) <- c("for24", "nur24", "all.rhy24","for24.nur24", "for24.nur8")
+list2 <- list(for.rhy, nur.rhy, for.rhy.12, nur.rhy.12, for.rhy.8, nur.rhy.8)
+names(list2) <- c("for24", "nur24", "for12","nur12", "for8", "nur8")
 sapply(list2, length)
 
 
@@ -493,8 +511,7 @@ drawHeatmap(gom.1v2,
               # what="Jaccard",
               log.scale = T,
               note.col = "grey80")
-dev.off()
-
+trash <- dev.off()
 ```
 
 
@@ -543,7 +560,7 @@ gom.1v3 <- newGOM(list1, list3,
        genome.size = nGenes)
 ## visualize the overlaps
 png(paste0(path_to_repo, "/results/figures/gom_1v3.png"), 
-    width = 20, height = 18, units = "cm", res = 300)
+    width = 14, height = 18, units = "cm", res = 400)
 drawHeatmap(gom.1v3,
               adj.p=T,
               cutoff=0.05,
@@ -551,12 +568,12 @@ drawHeatmap(gom.1v3,
               # what="Jaccard",
               log.scale = T,
               note.col = "grey80")
-dev.off()
+trash <- dev.off()
 
 ```
 
 ```{r plot_gom_1v3, echo = FALSE, fig.align='center', fig.cap='Gene-clusters underlying behavioral plasiticity and parasitic behavioral manipulation'}
-knitr::include_graphics("./../results/figures/gom_1v3.png")
+knitr::include_graphics(paste0(path_to_repo, "/results/figures/gom_1v3.png"))
 ```
 
 The figure above clearly indicates that the gene-clusters that underlie behavioral plasticity (caste differentiation) and the ones that are affected during *Ophiocordycpes*-induced behavioral manipulation are the same. 
@@ -572,18 +589,18 @@ knitr::include_graphics("./../results/illustrations/annotated_network_summary.pn
 
 ## Step 4: Explore your clusters-of-interest
 
-### 4.1 Cluster: DARKTURQUOISE
+### 4.1 Cluster: module-9
 
 #### 4.1.1 What are these overlapping genes?
 
-- Let's focus on the cluster darkturquoise that contains most Cflo genes that:
+- Let's focus on the cluster module-9/module-9 that contains most Cflo genes that:
   - are sig. higher expressed in foragers (v. nurses) and 
   - are sig. up-regulated in forager heads during behavioral manipulation (v. uninfected foragers)
 
-```{r explore_darkturquoise_part1}
+```{r explore_module-9_part1}
 
 # specify our cluster of interest (coi)
-coi.1 <- "darkturquoise"
+coi.1 <- "module-9"
 # How many genes are there in the cluster?
 module_genes[[coi.1]] %>% length() # n = 209 genes
 
@@ -595,14 +612,23 @@ goi.1 %>% length() # n = 232 genes
 # Identify overlapping genes
 overlapping.genes.1 <- intersect(module_genes[[coi.1]], goi.1) # n = 32 genes
 # what are these genes?
-overlapping.genes.1.annot <- 
+overlapping.genes.1.annot <-
   db %>% 
   tbl(., "annot_fpkm") %>% 
   filter(gene_name %in% overlapping.genes.1) %>% 
   select(gene_name, 
          blast_annot=old_annotation, 
          GOs, pfams, signalP, TMHMM) %>% 
-  collect()
+  collect() %>% 
+  # add a column that indicates if the gene is rhythmic or not
+  ## in forager brains  
+  mutate(rhy_foragers = ifelse(gene_name %in% for.rhy, "24h",
+                               ifelse(gene_name %in% for.rhy.12, "12h",
+                                      ifelse(gene_name %in% for.rhy.8, "8h", "not_rhy")))) %>% 
+  ## in nurse brains
+  mutate(rhy_nurses = ifelse(gene_name %in% nur.rhy, "24h",
+                               ifelse(gene_name %in% nur.rhy.12, "12h",
+                                      ifelse(gene_name %in% nur.rhy.8, "8h", "not_rhy"))))
 
 # Visualize the results
 DT::datatable(overlapping.genes.1.annot, options = list(
@@ -612,9 +638,9 @@ DT::datatable(overlapping.genes.1.annot, options = list(
   
 ```
 
-Which genes in darkturquoise show overlap with both genes of interests?
+Which genes in module-9 show overlap with both genes of interests?
 
-```{r explore_darkturquoise_part2}
+```{r explore_module-9_part2}
 
 # define the second gene-set of interst
 goi.2 <- for.up
@@ -631,7 +657,17 @@ overlapping.genes.2.annot <-
   select(gene_name, 
          blast_annot=old_annotation, 
          GOs, pfams, signalP, TMHMM) %>% 
-  collect()
+  collect() %>% 
+  # add a column that indicates if the gene is rhythmic or not
+  ## in forager brains  
+  mutate(rhy_foragers = ifelse(gene_name %in% for.rhy, "24h",
+                               ifelse(gene_name %in% for.rhy.12, "12h",
+                                      ifelse(gene_name %in% for.rhy.8, "8h", "not_rhy")))) %>% 
+  ## in nurse brains
+  mutate(rhy_nurses = ifelse(gene_name %in% nur.rhy, "24h",
+                               ifelse(gene_name %in% nur.rhy.12, "12h",
+                                      ifelse(gene_name %in% nur.rhy.8, "8h", "not_rhy"))))
+
 
 # Visualize the results
 DT::datatable(overlapping.genes.2.annot, options = list(
@@ -644,7 +680,7 @@ DT::datatable(overlapping.genes.2.annot, options = list(
 
 #### 4.1.2 What's special about my cluster?
 
-Now that we know that the module **darkturquoise** contains most of our genes of interest, we can infer its function (enriched GOs and PFAMs) and also identify the genes that are important for the cluster to be functional (i.e., hub genes).
+Now that we know that the module **module-9** contains most of our genes of interest, we can infer its function (enriched GOs and PFAMs) and also identify the genes that are important for the cluster to be functional (i.e., hub genes).
 
 This is the primary advantage of systems-level analysis:
 - Use different sources of evidence to identify the clusters in the network that are of interest,
@@ -654,19 +690,22 @@ This is the primary advantage of systems-level analysis:
 
 First up, let's see which processes are overrepresented in the cluster.
 
-```{r explore_darkturquoise_v3}
+```{r explore_module-9_v3}
 
 # To run a functional enrichment analyis, we first need to define the set of background genes; for our purpose, we will use the 9139 genes that we used to build our circadian GCN
 bg.genes <- dat %>% pull(gene_name)
 
 # Run the enrichment function (note, GO HERE TO READ MORE ABOUT THIS FUNCTION)
+# png(paste0(path_to_repo, "/results/figures/module_9_enrichments.png"), 
+#     width = 16, height = 10, units = "cm", res = 400)
 go_enrichment(geneset = module_genes[[coi.1]],
               function.dir = path_to_repo,
                 org = "cflo", 
-                bg = bg.genes) %>% 
+                bg = bg.genes) %>%  #view()
   
   # visualize the results
-  go_enrichment_plot(function.dir = path_to_repo, clean = "no")
+  go_enrichment_plot(function.dir = path_to_repo, clean = "yes")
+# trash <- dev.off()
 
 ```
 
@@ -674,15 +713,15 @@ go_enrichment(geneset = module_genes[[coi.1]],
 
 Second, let's plot the daily expression patterns of all genes in the cluster, for nurses and foragers.
 
-```{r explore_darkturquoise_v4}
+```{r explore_module-9_v4}
 
 # Obtain the stacked z-plots for nurses (blue) and foragers (red)
-zplots.darkturquoise <- 
+zplots.module <- 
   module_genes[[coi.1]] %>% 
   stacked.zplot()
 
 # Plot them side by side
-zplots.darkturquoise[[1]] / zplots.darkturquoise[[2]]
+zplots.module[[1]] / zplots.module[[2]]
 
 ```
 
@@ -691,17 +730,17 @@ LEGEND: **RED** = Forager brains, **BLUE** = Nurse brains
 #### 4.1.5 HUB genes?
  
 Need to:
-- identify the hub genes in the darkturquoise cluster
+- identify the hub genes in the module-9 cluster
 - other genes of interest based on their location in the network?
 
 
-### 4.2 Cluster: DARKRED
+### 4.2 Cluster: module-6
 
 #### 4.2.1 Overlapping genes
 
-```{r explore_darkred_v1, echo=F}
+```{r explore_module-6_v1, echo=F}
 # specify our cluster of interest (coi)
-coi.2 <- "darkred"
+coi.2 <- "module-6"
 
 # specify our genes of interest (goi)
 goi.3 <- ophio.down
@@ -735,8 +774,10 @@ DT::datatable(overlapping.genes.4.annot, options = list(
 
 #### 4.2.2 Enriched GO terms
 
-```{r explore_darkred_v2, echo=F}
+```{r explore_module-6_v2, echo=F}
 
+# png(paste0(path_to_repo, "/results/figures/module_6_enrichments.png"), 
+#     width = 16, height = 12, units = "cm", res = 400)
 # which genes?
 module_genes[[coi.2]] %>% 
   
@@ -744,25 +785,26 @@ module_genes[[coi.2]] %>%
   go_enrichment(.,
               function.dir = path_to_repo,
                 org = "cflo", 
-                bg = bg.genes) %>% 
+                bg = bg.genes) %>% #view()
   
   # visualize the results
   go_enrichment_plot(function.dir = path_to_repo, clean = "no")
+# trash <- dev.off()
 
 ```
 
 #### 4.2.3 Daily rhythms?
 
-```{r explore_darkred_v3, echo=F}
+```{r explore_module-6_v3, echo=F}
 
 # Obtain the stacked z-plots for 
 # nurses (blue) and foragers (red)
-zplots.darkred <- 
+zplots.module <- 
   module_genes[[coi.2]] %>% 
   stacked.zplot()
 
 # Plot them side by side
-zplots.darkred[[1]] / zplots.darkred[[2]]
+zplots.module[[1]] / zplots.module[[2]]
 
 ```
 
@@ -773,15 +815,15 @@ LEGEND: **RED** = Forager brains, **BLUE** = Nurse brains
 coming soon...
 
 
-### 4.3 Cluster: SADDLEBROWN
+### 4.3 Cluster: module-12
 
-> Connected to the forager-cluster (darkturquoise)
+> Connected to the forager-cluster (module-9)
 
 #### 4.3.1 Explore cluster
 
-```{r explore_saddlebrown_v1, echo=F}
+```{r explore_module-12_v1, echo=F}
 # specify our cluster of interest (coi)
-coi.3 <- "saddlebrown"
+coi.3 <- "module-12"
 
 writeLines(paste0("How many genes are there in the ", coi.3, " cluster?"))
 module_genes[[coi.3]] %>% length() # n = 95 genes
@@ -790,7 +832,7 @@ module_genes[[coi.3]] %>% length() # n = 95 genes
 
 #### 4.3.2 Enriched GO terms
 
-```{r explore_saddlebrown_v2, echo=F}
+```{r explore_module-12_v2, echo=F}
 
 # which genes?
 module_genes[[coi.3]] %>% 
@@ -807,15 +849,15 @@ module_genes[[coi.3]] %>%
 ```
 
 
-### 4.4 Cluster: GREY60
+### 4.4 Cluster: module-4
 
-> Connected to the nurse-cluster (darkred)
+> Connected to the nurse-cluster (module-6)
 
 #### 4.4.1 Explore cluster
 
-```{r explore_grey60_v1, echo=F}
+```{r explore_module-4_v1, echo=F}
 # specify our cluster of interest (coi)
-coi.4 <- "grey60"
+coi.4 <- "module-4"
 
 writeLines(paste0("How many genes are there in the ", coi.4, " cluster?"))
 module_genes[[coi.4]] %>% length() # n = 95 genes
@@ -824,7 +866,7 @@ module_genes[[coi.4]] %>% length() # n = 95 genes
 
 #### 4.4.2 Enriched GO terms
 
-```{r explore_grey60_v2, echo=F}
+```{r explore_module-4_v2, echo=F}
 
 # which genes?
 module_genes[[coi.4]] %>% 
@@ -841,15 +883,15 @@ module_genes[[coi.4]] %>%
 ```
 
 
-### 4.5 Cluster: DARKGREEN
+### 4.5 Cluster: module-11
 
-> Indirectly connected to forager- and nurse-cluster (and highly correlated to saddlebrown)
+> Indirectly connected to forager- and nurse-cluster (and highly correlated to module-12)
 
 #### 4.5.1 Explore cluster
 
-```{r explore_darkgreen_v1, echo=F}
+```{r explore_module-11_v1, echo=F}
 # specify our cluster of interest (coi)
-coi.5 <- "darkgreen"
+coi.5 <- "module-11"
 
 writeLines(paste0("How many genes are there in the ", coi.5, " cluster?"))
 module_genes[[coi.5]] %>% length() # n = 95 genes
@@ -858,7 +900,7 @@ module_genes[[coi.5]] %>% length() # n = 95 genes
 
 #### 4.4.2 Enriched GO terms
 
-```{r explore_darkgreen_v2, echo=F}
+```{r explore_module-11_v2, echo=F}
 
 # which genes?
 module_genes[[coi.5]] %>% 
@@ -873,3 +915,132 @@ module_genes[[coi.5]] %>%
   go_enrichment_plot(function.dir = path_to_repo, clean = "no")
 
 ```
+
+
+## Step 5: Random code chunks
+
+```{r eval=FALSE}
+
+# module-9 genes ----------------------------------------------------------
+
+db %>% 
+  tbl(., "annot_fpkm") %>% 
+  filter(gene_name %in% overlapping.genes.2) %>% 
+  select(gene_name, 
+         blast_annot=old_annotation, 
+         GOs, pfams, signalP, TMHMM) %>% 
+  collect() %>% 
+  
+  # add a column that indicates if the gene is rhythmic or not
+  ## in forager brains  
+  mutate(rhy_foragers = ifelse(gene_name %in% for.rhy, "24h",
+                               ifelse(gene_name %in% for.rhy.12, "12h",
+                                      ifelse(gene_name %in% for.rhy.8, "8h", "not_rhy")))) %>% 
+  ## in nurse brains
+  mutate(rhy_nurses = ifelse(gene_name %in% nur.rhy, "24h",
+                             ifelse(gene_name %in% nur.rhy.12, "12h",
+                                    ifelse(gene_name %in% nur.rhy.8, "8h", "not_rhy")))) %>% 
+  
+  # add a column to indicate if the gene is for-up/down and up/down-regulated at manipulation
+  mutate(identity = "upregulated in foragers; upregulated at manipulation") %>% 
+  
+  
+  
+  write.csv(., "./results/genes_of_interest/genes_for-up_manipulation-up_cluster9.csv", row.names = F)
+
+
+
+# module-6 genes ----------------------------------------------------------
+db %>% 
+  tbl(., "annot_fpkm") %>% 
+  filter(gene_name %in% overlapping.genes.4) %>% 
+  select(gene_name, 
+         blast_annot=old_annotation, 
+         GOs, pfams, signalP, TMHMM) %>% 
+  collect() %>% 
+  
+  # add a column that indicates if the gene is rhythmic or not
+  ## in forager brains  
+  mutate(rhy_foragers = ifelse(gene_name %in% for.rhy, "24h",
+                               ifelse(gene_name %in% for.rhy.12, "12h",
+                                      ifelse(gene_name %in% for.rhy.8, "8h", "not_rhy")))) %>% 
+  ## in nurse brains
+  mutate(rhy_nurses = ifelse(gene_name %in% nur.rhy, "24h",
+                             ifelse(gene_name %in% nur.rhy.12, "12h",
+                                    ifelse(gene_name %in% nur.rhy.8, "8h", "not_rhy")))) %>% 
+  
+  # add a column to indicate if the gene is for-up/down and up/down-regulated at manipulation
+  mutate(identity = "upregulated in nurses; downregulated at manipulation") %>% 
+  
+  write.csv(., "./results/genes_of_interest/genes_nur-up_manipulation-down_cluster6.csv", row.names = F)
+
+
+# Overlap between plasticity and manipulation genes ------------------------
+
+list.plasticity <- list(for.up, for.down)
+names(list.plasticity) <- c("for-UP", "for-DOWN")
+
+list.manipulation <- list(ophio.up, ophio.down)
+names(list.manipulation) <- c("ophio-UP", "ophio-DOWN")
+
+gom.plasticity_v_manipulation <- newGOM(list.plasticity, list.manipulation, genome.size = nGenes)
+png(paste0(path_to_repo, "/results/figures/gom_plasticity_v_manipulation.png"), 
+    width = 12, height = 12, units = "cm", res = 400)
+drawHeatmap(gom.plasticity_v_manipulation,
+            adj.p=T,
+            cutoff=0.05,
+            what="odds.ratio",
+            # what="Jaccard",
+            log.scale = T,
+            note.col = "grey80")
+dev.off()
+
+
+# Odds ratio and fisher’s exact test --------------------------------------
+
+# for-up and module-9
+test.table <- 
+  data.frame(
+    in.module = c(20,189),
+    not.module = c(14,8916)
+  )
+
+rownames(test.table) <- c("in.for.up", "not.for.up")
+
+fisher.test(test.table)
+
+# for-down and module-6
+test.table <- 
+  data.frame(
+    in.module = c(18,161),
+    not.module = c(29,8931)
+  )
+
+rownames(test.table) <- c("in.for.down", "not.for.down")
+
+fisher.test(test.table)
+
+# ophio-up and module-9
+test.table <- 
+  data.frame(
+    in.module = c(32,177),
+    not.module = c(177,8730)
+  )
+
+rownames(test.table) <- c("in.ophio.up", "not.ophio.up")
+
+fisher.test(test.table)
+
+# ophio-down and module-6
+test.table <- 
+  data.frame(
+    in.module = c(42,137),
+    not.module = c(137,8428)
+  )
+
+rownames(test.table) <- c("in.ophio.down", "not.ophio.down")
+
+fisher.test(test.table)$p.value
+
+```
+
