@@ -3,6 +3,7 @@ title: "Host-parasite-clocks"
 author: Biplabendu Das
 date: '`r format(Sys.time(), "%d %B, %Y")`'
 output:
+  word_document:
   html_document:
     toc: true
     toc_depth: 3
@@ -177,7 +178,7 @@ powers = c(c(1:10), seq(from = 12, to=20, by=2))
 sft = pickSoftThreshold(datExpr, powerVector = powers, verbose = 5)
 # Plot the results:
 # sizeGrWindow(9, 5)
-# par(mfrow = c(1,2));
+par(mfrow = c(1,2));
 cex1 = 0.9;
 # Scale-free topology fit index as a function of the soft-thresholding power
 plot(sft$fitIndices[,1], -sign(sft$fitIndices[,3])*sft$fitIndices[,2],
@@ -358,7 +359,7 @@ gplots::heatmap.2(t(adj_matrix_ME),
                   trace='none', dendrogram='row',
                   xlab='', ylab='',
                   # main='Similarity matrix - MEs \n correlation method = "kendall")',
-                  main='Adjacency matrix - MEs \n modified edge weights)',
+                  main='Adjacency matrix - MEs',
                   density.info='none', revC=TRUE)
 
 
@@ -997,6 +998,16 @@ dev.off()
 
 
 # Odds ratio and fisher’s exact test --------------------------------------
+
+# for.rhy and module-7
+
+test.table <- 
+  data.frame(
+    in.module = c(477, 187),
+    not.module = c(3092, 5383)
+  )
+rownames(test.table) <- c("in.for.rhy", "not.for.rhy")
+fisher.test(test.table)
 
 # for-up and module-9
 test.table <- 
