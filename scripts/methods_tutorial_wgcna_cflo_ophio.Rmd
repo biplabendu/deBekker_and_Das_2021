@@ -1053,5 +1053,97 @@ rownames(test.table) <- c("in.ophio.down", "not.ophio.down")
 
 fisher.test(test.table)$p.value
 
+
+## are there any known clock genes and clock-controlled genes in module-4?
+
+rhy.genes.in.module4 <- intersect(for.rhy, module_genes[["module-4"]])
+
+db %>% 
+  tbl(., "annot_fpkm") %>%
+  
+  # filter the genes here
+  filter(gene_name %in% rhy.genes.in.module4) %>%
+  
+  select(gene_name, 
+         blast_annot=old_annotation, 
+         GOs, pfams, signalP, TMHMM) %>% 
+  collect() %>% 
+  
+  # add a column that indicates if the gene is rhythmic or not
+  ## in forager brains  
+  mutate(rhy_foragers = ifelse(gene_name %in% for.rhy, "24h",
+                               ifelse(gene_name %in% for.rhy.12, "12h",
+                                      ifelse(gene_name %in% for.rhy.8, "8h", "not_rhy")))) %>% 
+  ## in nurse brains
+  mutate(rhy_nurses = ifelse(gene_name %in% nur.rhy, "24h",
+                             ifelse(gene_name %in% nur.rhy.12, "12h",
+                                    ifelse(gene_name %in% nur.rhy.8, "8h", "not_rhy")))) %>% 
+  
+  # add a column to indicate if the gene is for-up/down and up/down-regulated at manipulation
+  mutate(identity = "24h-rhythmic in foragers; module-4 gene") %>% 
+  
+  
+  
+  write.csv(., "./results/genes_of_interest/rhythmic_genes_module4.csv", row.names = F)
+
+# png(paste0(path_to_repo, "/results/figures/module_4_enrichments.png"),
+#     width = 16, height = 12, units = "cm", res = 400)
+# run enrichment for module-4
+module_genes[["module-4"]] %>% 
+  # run enrichment
+  go_enrichment(.,
+              function.dir = path_to_repo,
+                org = "cflo", 
+                bg = bg.genes) %>% 
+  # visualize the results
+  go_enrichment_plot(function.dir = path_to_repo, clean = "no")
+# dev.off()
+
+
+## are there any known clock genes and clock-controlled genes in module-12?
+rhy.genes.in.module12 <- intersect(for.rhy, module_genes[["module-12"]])
+
+db %>% 
+  tbl(., "annot_fpkm") %>%
+  
+  # filter the genes here
+  filter(gene_name %in% rhy.genes.in.module12) %>%
+  
+  select(gene_name, 
+         blast_annot=old_annotation, 
+         GOs, pfams, signalP, TMHMM) %>% 
+  collect() %>% 
+  
+  # add a column that indicates if the gene is rhythmic or not
+  ## in forager brains  
+  mutate(rhy_foragers = ifelse(gene_name %in% for.rhy, "24h",
+                               ifelse(gene_name %in% for.rhy.12, "12h",
+                                      ifelse(gene_name %in% for.rhy.8, "8h", "not_rhy")))) %>% 
+  ## in nurse brains
+  mutate(rhy_nurses = ifelse(gene_name %in% nur.rhy, "24h",
+                             ifelse(gene_name %in% nur.rhy.12, "12h",
+                                    ifelse(gene_name %in% nur.rhy.8, "8h", "not_rhy")))) %>% 
+  
+  # add a column to indicate if the gene is for-up/down and up/down-regulated at manipulation
+  mutate(identity = "24h-rhythmic in foragers; module-12 gene") %>% 
+  
+  
+  
+  write.csv(., "./results/genes_of_interest/rhythmic_genes_module12.csv", row.names = F)
+
+# run enrichment for module-12
+# png(paste0(path_to_repo, "/results/figures/module_12_enrichments.png"),
+#     width = 16, height = 12, units = "cm", res = 400)
+module_genes[["module-12"]] %>% 
+  # run enrichment
+  go_enrichment(.,
+              function.dir = path_to_repo,
+                org = "cflo", 
+                bg = bg.genes) %>% 
+  # visualize the results
+  go_enrichment_plot(function.dir = path_to_repo, clean = "no")
+# dev.off()
+
+
 ```
 
