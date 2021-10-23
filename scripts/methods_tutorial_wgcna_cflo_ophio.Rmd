@@ -353,6 +353,8 @@ adj_matrix_ME <- matrix(adj_matrix_ME, nrow=nrow(adj_matrix_ME))
 rownames(adj_matrix_ME) <- module_ids$new_labels
 colnames(adj_matrix_ME) <- module_ids$new_labels
 
+png(paste0(path_to_repo, "/results/figures/ME_adjacency.png"), 
+    width = 18, height = 18, units = "cm", res = 400)
 gplots::heatmap.2(t(adj_matrix_ME),
                   col=inferno(100),
                   # labRow=NA, labCol=NA,
@@ -362,7 +364,7 @@ gplots::heatmap.2(t(adj_matrix_ME),
                   main='Adjacency matrix - MEs',
                   density.info='none', revC=TRUE)
 
-
+trash <- dev.off()
 ```
 
 ### 2.5 Visualize the network
@@ -569,6 +571,29 @@ drawHeatmap(gom.1v3,
               # what="Jaccard",
               log.scale = T,
               note.col = "grey80")
+trash <- dev.off()
+
+
+list4 <- list(for.rhy, nur.rhy,
+              for.up, for.down,
+              ophio.up, ophio.down)
+names(list4) <- c("for-24h", "nur-24h",
+                  "for-UP", "for-DOWN",
+                  "ophio-UP", "ophio-DOWN")
+## CHECK FOR OVERLAP
+## make a GOM object
+gom.1v4 <- newGOM(list1, list4, genome.size = nGenes)
+## visualize the overlaps
+png(paste0(path_to_repo, "/results/figures/gom_1v4.png"), 
+    width = 18, height = 18, units = "cm", res = 400)
+drawHeatmap(gom.1v4,
+              adj.p=T,
+              cutoff=0.05,
+              what="odds.ratio",
+              grid.col = "Greens",
+              # what="Jaccard",
+              log.scale = T,
+              note.col = "black")
 trash <- dev.off()
 
 ```
@@ -1094,7 +1119,7 @@ module_genes[["module-4"]] %>%
   go_enrichment(.,
               function.dir = path_to_repo,
                 org = "cflo", 
-                bg = bg.genes) %>% 
+                bg = bg.genes) %>% view()
   # visualize the results
   go_enrichment_plot(function.dir = path_to_repo, clean = "no")
 # dev.off()
