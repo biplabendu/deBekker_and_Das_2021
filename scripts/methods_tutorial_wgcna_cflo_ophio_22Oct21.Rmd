@@ -871,7 +871,7 @@ go_enrichment(geneset = module_genes[[coi.1]],
                 bg = bg.genes) %>%  #view()
   
   # visualize the results
-  go_enrichment_plot(function.dir = path_to_repo, clean = "yes")
+  go_enrichment_plot(function.dir = path_to_repo, clean = "no")
 # trash <- dev.off()
 
 ```
@@ -1086,7 +1086,7 @@ module_genes[[coi.5]] %>%
 
 ## Step 5: Random code chunks
 
-```{r eval=FALSE}
+```{r misc_01, eval=FALSE}
 
 # module-9 genes ----------------------------------------------------------
 
@@ -1310,6 +1310,86 @@ module_genes[["module-12"]] %>%
   go_enrichment_plot(function.dir = path_to_repo, clean = "no")
 # dev.off()
 
+```
+
+Step 6: Compiling annotated gene list
+
+```{r misc_02, eval=FALSE}
+
+## get names of all genes used to build the ant GCN
+cflo.genes <- colnames(datExpr)
+
+## make a dataframe with gene_name and module identity
+
+for (i in 1:length(module_genes)){
+  
+  if (i == 1){
+    cflo.genes.module <- data.frame(gene_name = module_genes[[i]],
+                                  module_identity = names(module_genes)[i])
+  }
+  else {
+    foo <- data.frame(gene_name = module_genes[[i]],
+                                  module_identity = names(module_genes)[i])
+    cflo.genes.module <- rbind(cflo.genes.module, foo)
+  }
+}
+
+# # double check to see if the numbers add up (it does!)
+# cflo.genes.module %>% 
+#   group_by(module_identity) %>% 
+#   summarise(n())
+
+
+## Let's get all the annotations for the "cflo.genes" listed above
+
+# go to the database
+db %>% 
+  
+  # pull the annotation file  
+  tbl(., "annot_fpkm") %>%
+  
+  # filter to keep only the cflo.genes
+  filter(gene_name %in% cflo.genes) %>% 
+  
+  # only keep columns that we are interested in
+  select(gene_name, 
+         blast_annotation=old_annotation, 
+         GOs, pfams, signalP, TMHMM) %>% 
+  
+  # grab all the data so we can wrangle it (should have 9139 rows)
+  collect() %>% 
+  
+  # add a column that indicates if the gene is rhythmic or not
+    # in forager brains  
+  mutate(rhy_foragers = ifelse(gene_name %in% for.rhy, "24h",
+                               ifelse(gene_name %in% for.rhy.12, "12h",
+                                      ifelse(gene_name %in% for.rhy.8, "8h", "not_rhy")))) %>% 
+    # in nurse brains
+  mutate(rhy_nurses = ifelse(gene_name %in% nur.rhy, "24h",
+                             ifelse(gene_name %in% nur.rhy.12, "12h",
+                                    ifelse(gene_name %in% nur.rhy.8, "8h", "not_rhy")))) %>% 
+  
+  # add a column to indicate if the gene is up/down-regulated in foragers (v. nurses)
+  mutate(for_nur_DEG = ifelse(gene_name %in% for.up, "for-UP",
+                              ifelse(gene_name %in% for.down, "for-DOWN", "not_DEG"))) %>%
+  
+  # add a column to indicate if the gene is up/down-regulated in foragers during manipulation (v. controls)
+  mutate(ophio_control_DEG = ifelse(gene_name %in% ophio.up, "ophio-UP",
+                              ifelse(gene_name %in% ophio.down, "ophio-DOWN", "not_DEG"))) %>%
+  
+  # add a column to specify module identity
+  left_join(., cflo.genes.module, by = "gene_name") %>% 
+  
+  # order the columns to your liking
+  select(gene_name, blast_annotation, module_identity, rhy_foragers:ophio_control_DEG, everything()) %>% 
+  
+  # arrange the rows by module > rhythmic > for up/down > ophio up/down
+  arrange(module_identity, rhy_foragers) %>% 
+  
+  # write the file to a csv
+  write.csv(., "./results/genes_of_interest/Cflo_genes_in_GCN_annotated.csv", row.names = F)
+
 
 ```
+
 
