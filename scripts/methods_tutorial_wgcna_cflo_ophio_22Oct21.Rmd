@@ -42,7 +42,7 @@ conflict_prefer("hclust", "flashClust")
 conflict_prefer("union", "dplyr")
 
 #' set path to your working directory
-path_to_repo = "/Users/biplabendudas/Documents/GitHub/Das_and_deBekker_2021"
+path_to_repo = "/Users/biplabendudas/Documents/GitHub/deBekker_and_Das_2021"
 
 #' load functions
 # customized theme for publication quality figures
@@ -743,7 +743,7 @@ The figure above shows that the gene-modules that putatively underlie behavioral
 
 ```{r plot_annotated_network, echo = FALSE, fig.align='center', fig.cap='Annotated circadian GCN', out.width="85%"}
 
-knitr::include_graphics("./../results/illustrations/annotated_network_summary.png")
+knitr::include_graphics("./../results/illustrations/01_figures_das_and_deBekker_2021_draft5.png")
 ```
 
 ```{r define_all_rhythmic_genes, include=F}
